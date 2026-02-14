@@ -1,0 +1,17 @@
+<div class="grid-container">
+    @if (wells().length > 0) {
+    <div class="plate-layout">
+        @for (well of wells(); track well.WellIndex) {
+        <div class="well" [class.normal]="well.isNormal">
+            {{ well.isNormal ? 'n' : 'L' }}
+        </div>
+        } @empty {
+        <p>No data loaded.</p>
+        }
+    </div>
+    } @else {
+    <div class="empty-state">
+        <p>No wells found. Please upload a plate or check local storage.</p>
+    </div>
+    }
+</div>

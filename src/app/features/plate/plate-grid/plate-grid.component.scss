@@ -1,0 +1,29 @@
+.plate-layout {
+    display: grid;
+    /* Creates 8 rows (A-H) */
+    grid-template-rows: repeat(8, 1fr);
+    /* Fills vertically (A01 to H01) before moving to the next column */
+    grid-auto-flow: column;
+    /* Adjust spacing between wells here */
+    gap: 8px;
+}
+
+.well {
+    /* Basic styling */
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ccc;
+    text-align: center;
+    line-height: 40px;
+    border-radius: 50%;
+
+    /* This is the "L" (Low) state: dropletCount < threshold */
+    background-color: #e0e0e0; // Prompt suggests gray for L
+    color: #333;
+
+    &.normal {
+        /* This is the "n" (Normal) state: dropletCount >= threshold */
+        background-color: #ffffff;
+        color: #000;
+    }
+}

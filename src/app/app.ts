@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { PlateShellComponent } from "@ddpcr-feature/plate";
 
 @Component({
     selector: 'app-root',
-    imports: [RouterOutlet],
     templateUrl: './app.html',
-    styleUrl: './app.scss'
+    styleUrl: './app.scss',
+    imports: [PlateShellComponent]
 })
 export class App {
 }
