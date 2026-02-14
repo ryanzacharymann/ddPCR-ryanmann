@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, combineLatest, map, Observable } from 'rxjs';
-import { PlateDropletResponse, THRESHOLD_STORAGE_KEY, Well, WELLS_STORAGE_KEY } from '@ddpcr-core/models';
+import { PlateConfig, PlateDropletResponse, THRESHOLD_STORAGE_KEY, Well, WELLS_STORAGE_KEY } from '@ddpcr-core/models';
 
 @Injectable({
     providedIn: 'root'
@@ -19,6 +19,23 @@ export class PlateService {
     );
 
     // Well Methods
+    public async uploadPlateFile(file: File): Promise<void> {
+        try {
+            const text = await file.text();
+            const data: PlateDropletResponse = JSON.parse(text);
+            const wells = data?.PlateDropletInfo?.DropletInfo?.Wells;
+
+            if (Array.isArray(wells)) {
+                this.setWells(wells);
+            } else {
+                throw new Error('Invalid JSON structure: Wells array not found.');
+            }
+        } catch (error) {
+            console.error('PlateService: Error processing file', error);
+            throw error; // Re-throw so the component can show a UI notification
+        }
+    }
+
     public storeWells(data: Well[]): void {
         const wrapper: PlateDropletResponse = {
             PlateDropletInfo: {
@@ -48,6 +65,10 @@ export class PlateService {
 
     public setThreshold(value: number): void {
         this.threshold$.next(value);
+    }
+
+    public storeThreshold(value: number): void {
+        localStorage.setItem(THRESHOLD_STORAGE_KEY, JSON.stringify(value));
     }
 
     private transformData(wells: Well[], threshold: number): Well[] {

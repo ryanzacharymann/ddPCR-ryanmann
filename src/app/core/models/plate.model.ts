@@ -9,7 +9,14 @@ export interface PlateDropletInfo {
 
 export interface DropletContainer {
     Version: number;
+    type?: 48 | 96;
     Wells: Well[];
+}
+
+export interface PlateConfig {
+    rows: number;
+    cols: number;
+    type: 48 | 96;
 }
 
 export interface Well {

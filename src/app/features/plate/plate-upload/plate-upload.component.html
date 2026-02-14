@@ -1,0 +1,15 @@
+<div class="drop-zone" plateDragDrop (onFileDropped)="onFileDropped($event)" [class.has-file]="hasFile()">
+    <input type="file" #fileInput hidden accept=".json,application/json" (change)="fileBrowseHandler($event)" />
+
+    <div class="content">
+        @if (!file()) {
+        <p>Drag your <strong>JSON</strong> file here</p>
+        <button type="button" (click)="fileInput.click()">Select JSON</button>
+        } @else {
+        <div class="file-info">
+            <span>{{ file()?.name }}</span>
+            <button type="button" (click)="clearFile()" class="remove-btn">Replace File</button>
+        </div>
+        }
+    </div>
+</div>
