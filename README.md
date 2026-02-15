@@ -19,6 +19,50 @@ This Angular application provides a high-performance grid visualization for drop
 
 The application is built with a modular component and service structure to ensure a single source of truth.
 
+## Project Structure
+
+```text
+src/
+├── app/
+│   ├── core/
+│   │   ├── models/
+│   │   │   ├── index.ts
+│   │   │   └── plate.model.ts
+│   │   └── services/
+│   │       ├── index.ts
+│   │       ├── plate.service.spec.ts
+│   │       └── plate.service.ts
+│   ├── features/
+│   │   └── plate/
+│   │       ├── plate-error/
+│   │       ├── plate-grid/
+│   │       ├── plate-summary/
+│   │       ├── plate-threshold/
+│   │       ├── plate-upload/
+│   │       ├── index.ts
+│   │       ├── plate.component.html
+│   │       ├── plate.component.scss
+│   │       └── plate.component.ts
+│   ├── app.config.ts
+│   ├── app.html
+│   ├── app.scss
+│   ├── app.spec.ts
+│   └── app.ts
+├── index.html
+├── main.ts
+└── styles.scss
+├── .editorconfig
+├── .gitignore
+├── angular.json
+├── eslint.config.js
+├── package-lock.json
+├── package.json
+├── README.md
+├── tsconfig.app.json
+├── tsconfig.json
+└── tsconfig.spec.json
+```
+
 ### Core Logic
 
 * **PlateModel:** The primary data structure and source of truth shared throughout the application.

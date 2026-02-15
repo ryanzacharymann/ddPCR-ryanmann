@@ -5,6 +5,15 @@
 export const ALLOWED_WELLS: readonly number[] = [48, 96] as const;
 
 /**
+ * Mapping of total wells to column counts, assuming a standard 8-row layout.
+ * This derives the logic directly from your constraints.
+ */
+export const WELL_TO_COLUMN_MAP: Record<number, number> = {
+    48: 6,
+    96: 12
+};
+
+/**
  * Default droplet threshold used to classify wells.
  */
 export const DEFAULT_THRESHOLD = 100;
@@ -80,4 +89,13 @@ export interface PlateSummary {
 
     /** Number of wells below the droplet threshold */
     totalLowDroplets: number;
+}
+
+/**
+ * Represents the layout configuration for a plate grid.
+ */
+export interface PlateConfig {
+    wells: Well[];
+    rows: readonly string[];
+    columns: number[];
 }

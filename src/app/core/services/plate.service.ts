@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, combineLatest, from, map, Observable, of, take, tap } from 'rxjs';
-import { ALLOWED_WELLS, DEFAULT_THRESHOLD, MAX_THRESHOLD, MIN_THRESHOLD, PlateDropletResponse, PlateSummary, Well } from '@ddpcr-core/models';
+import { ALLOWED_WELLS, DEFAULT_THRESHOLD, MAX_THRESHOLD, MIN_THRESHOLD, PLATE_ROW_LABELS, PlateConfig, PlateDropletResponse, PlateSummary, Well, WELL_TO_COLUMN_MAP } from '@ddpcr-core/models';
 
 // Feature toggle: enable strict droplet count validation against MIN/MAX thresholds.
 // Currently disabled because thresholds are not finalized by product requirements.
@@ -12,29 +12,27 @@ const ENABLE_DROPLET_RANGE_VALIDATION = false;
  * Centralized state and validation service for droplet plate data.
  *
  * Responsibilities:
- * - Accepts and validates uploaded plate JSON files
- * - Maintains raw well data and derives computed state reactively
- * - Exposes and allows mutation of the active droplet threshold
- * - Classifies wells based on the current threshold
- * - Surfaces validation and parsing errors without throwing to consumers
+ * - Accepts and validates uploaded plate JSON files.
+ * - Maintains raw well data and manages a user-adjustable droplet threshold.
+ * - Derives computed state (classification, summaries, and layout) reactively.
+ * - Calculates plate geometry (rows/columns) based on the number of wells detected.
+ * - Surfaces validation and parsing errors to consumers via an observable stream.
  *
  * Reactive Model:
- * - `rawData$` is the source-of-truth well data
- * - `threshold$` stores the active droplet threshold and is consumer-controlled
- * - `processed$` derives `isNormal` per well from `rawData$` and `threshold$`
- * - `summary$` computes aggregate plate metrics from processed wells
- * - `error$` emits the latest error message, if any
+ * - `rawData$`: The private source-of-truth for well data.
+ * - `threshold$`: A stream for the active droplet threshold, controlled by the consumer.
+ * - `processed$`: A derived stream that applies `isNormal` classification to wells based on the threshold.
+ * - `plateGridConfig$`: A derived stream that computes the plate layout, including row labels and column counts.
+ * - `summary$`: A derived stream computing aggregate metrics (total wells, low droplet counts).
+ * - `error$`: A stream emitting the latest validation or parsing error message.
  *
  * Design Notes:
- * - All derived state is computed immutably
- * - Consumers may both read and update the threshold via `getThreshold()` / `setThreshold()`
- * - File uploads are processed once and update internal state atomically
+ * - Immutability: All derived state is computed without mutating the source data.
+ * - Atomic Updates: File uploads reset errors and update the internal data state in one sequence.
+ * - Reactive Sync: Changes to the threshold or raw data automatically propagate through all derived streams.
+ * - Single Subscription: Consumers are encouraged to use the public getters to subscribe to state.
  *
- * Intended Usage:
- * - Components subscribe to `getWells()`, `getPlateSummary()`, `getThreshold()`, and `getError()`
- * - Components update classification behavior via `setThreshold()`
- *
- * Provided in root for application-wide plate state sharing.
+ * @providedIn 'root'
  */
 @Injectable({
     providedIn: 'root'
@@ -50,6 +48,24 @@ export class PlateService {
         this.threshold$
     ]).pipe(
         map(([wells, threshold]) => this.transformData(wells, threshold))
+    );
+
+    /** * Derived stream that computes the structural layout of the plate 
+     * (rows, columns, and mapped well data) based on the current processed state.
+     */
+    private readonly plateGridConfig$: Observable<PlateConfig> = this.processed$.pipe(
+        map(wells => {
+            const count = wells.length;
+
+            // Derive column count from the map, defaulting to 12 if unknown
+            const columnCount = WELL_TO_COLUMN_MAP[count] || 12;
+
+            return {
+                wells,
+                rows: PLATE_ROW_LABELS,
+                columns: Array.from({ length: columnCount }, (_, i) => i + 1)
+            };
+        })
     );
 
     // BehaviorSubject to store private summary
@@ -76,8 +92,9 @@ export class PlateService {
      * @returns Observable emitting the validated Well array, or an empty array on error
      */
     public uploadPlateFile(file: File): Observable<Well[]> {
-        // Reset error state immediately
+        // Reset error state and grid immediately
         this.error$.next(null);
+        this.rawData$.next([]);
 
         // 0. Basic file validation (sync, fail fast)
         const isJsonMime =
@@ -122,7 +139,7 @@ export class PlateService {
             }),
 
             // 5. Success: State update
-            tap(wells => this.setWells(wells)),
+            tap(wells => this.rawData$.next(wells)),
 
             // 6. Error handling
             catchError(err => {
@@ -135,17 +152,17 @@ export class PlateService {
         );
     }
 
-    // Well Methods
+    /**
+     * Retrieves the current plate configuration, including processed well data,
+     * row labels, and calculated column ranges based on the plate size.
+     * * @returns Observable of the PlateConfig.
+     */
+    public getPlateConfig(): Observable<PlateConfig> {
+        return this.plateGridConfig$;
+    }
+
     public getPlateSummary(): Observable<PlateSummary> {
         return this.summary$;
-    }
-
-    public getWells(): Observable<Well[]> {
-        return this.processed$;
-    }
-
-    public setWells(data: Well[]): void {
-        this.rawData$.next(data);
     }
 
     // Threshold Methods
