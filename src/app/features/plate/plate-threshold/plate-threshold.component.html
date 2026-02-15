@@ -1,0 +1,5 @@
+<div class="threshold-wrapper">
+    <label for="threshold-input">Threshold:</label>
+    <input id="threshold-input" #tInput type="number" [value]="currentThreshold()">
+    <button (click)="updateThreshold(tInput.value)">Update</button>
+</div>

@@ -1,0 +1,4 @@
+<div class="upload-container">
+    <label for="file-upload" class="custom-label">Upload Plate JSON</label>
+    <input #fileInput id="file-upload" type="file" accept=".json" (change)="onFileSelected($event, fileInput)" />
+</div>

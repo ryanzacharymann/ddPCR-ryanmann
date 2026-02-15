@@ -1,0 +1,1 @@
+export * from './plate-shell/plate-shell.component';
