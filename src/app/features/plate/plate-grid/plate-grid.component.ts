@@ -7,7 +7,6 @@ import { PlateService } from "@ddpcr-core/services";
     selector: 'plate-grid',
     templateUrl: './plate-grid.component.html',
     styleUrls: ['./plate-grid.component.scss'],
-    providers: [PlateService],
     standalone: true,
     changeDetection: ChangeDetectionStrategy.OnPush
 })

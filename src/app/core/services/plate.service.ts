@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, combineLatest, map, Observable } from 'rxjs';
+import { BehaviorSubject, catchError, combineLatest, from, map, Observable, of, tap } from 'rxjs';
 import { PlateConfig, PlateDropletResponse, THRESHOLD_STORAGE_KEY, Well, WELLS_STORAGE_KEY } from '@ddpcr-core/models';
 
 @Injectable({
@@ -19,21 +19,30 @@ export class PlateService {
     );
 
     // Well Methods
-    public async uploadPlateFile(file: File): Promise<void> {
-        try {
-            const text = await file.text();
-            const data: PlateDropletResponse = JSON.parse(text);
-            const wells = data?.PlateDropletInfo?.DropletInfo?.Wells;
+    public uploadPlateFile(file: File): void {
+        from(file.text()).pipe(
+            // 1. Parse the JSON string
+            map(text => JSON.parse(text) as PlateDropletResponse),
 
-            if (Array.isArray(wells)) {
-                this.setWells(wells);
-            } else {
-                throw new Error('Invalid JSON structure: Wells array not found.');
-            }
-        } catch (error) {
-            console.error('PlateService: Error processing file', error);
-            throw error; // Re-throw so the component can show a UI notification
-        }
+            // 2. Extract and validate the specific data structure
+            map(data => {
+                const wells = data?.PlateDropletInfo?.DropletInfo?.Wells;
+                if (!Array.isArray(wells)) {
+                    throw new Error('Invalid JSON structure: Wells array not found');
+                }
+                return wells;
+            }),
+
+            // 3. Side effect: Update the state
+            tap(wells => this.setWells(wells)),
+
+            // 4. Graceful error handling
+            catchError(err => {
+                console.error('PlateService: Error processing file', err);
+                // Return an empty observable to keep the stream alive if necessary
+                return of([]);
+            })
+        ).subscribe(); // Internal subscription handles the "fire and forget" logic
     }
 
     public storeWells(data: Well[]): void {
