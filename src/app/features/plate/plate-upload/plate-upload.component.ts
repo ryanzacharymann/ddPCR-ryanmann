@@ -17,7 +17,7 @@ export class PlateUploadComponent {
         const file = input.files?.[0];
 
         if (file) {
-            this.plateService.uploadPlateFile(file);
+            this.plateService.uploadPlateFile(file).subscribe();
             input.value = '';
         }
     }
