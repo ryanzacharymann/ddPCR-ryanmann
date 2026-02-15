@@ -1,5 +1,23 @@
 <div class="threshold-wrapper">
     <label for="threshold-input">Threshold:</label>
-    <input id="threshold-input" #tInput type="number" [value]="currentThreshold()">
-    <button (click)="updateThreshold(tInput.value)">Update</button>
+
+    <input id="threshold-input" type="number" [formControl]="thresholdControl">
+
+    <button (click)="updateThreshold()" [disabled]="thresholdControl.invalid">
+        Update
+    </button>
+
+    @if (thresholdControl.invalid && thresholdControl.touched) {
+    <div class="error-messages">
+        @if (thresholdControl.hasError('min')) {
+        <small>Value must be at least 0.</small>
+        }
+        @if (thresholdControl.hasError('max')) {
+        <small>Value cannot exceed 500.</small>
+        }
+        @if (thresholdControl.hasError('required')) {
+        <small>Numeric threshold is required.</small>
+        }
+    </div>
+    }
 </div>

@@ -1,1 +1,1 @@
-export * from './plate-shell/plate-shell.component';
+export * from './plate.component';

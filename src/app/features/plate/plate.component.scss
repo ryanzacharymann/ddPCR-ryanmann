@@ -1,0 +1,22 @@
+:host {
+    display: block;
+    min-height: 100vh;
+}
+
+.plate-shell-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem; 
+    max-width: 900px; 
+    margin: 0 auto; 
+    width: 100%;
+}
+
+plate-upload,
+plate-threshold,
+plate-error,
+plate-grid,
+plate-summary {
+    display: block;
+    width: 100%;
+}

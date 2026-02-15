@@ -1,22 +1,22 @@
 <div class="grid-container">
-    @if (wells().length > 0) {
+    @if (gridReady()) {
     <div class="master-plate-wrapper">
         <div class="spacer"></div>
 
         <div class="column-headers">
-            @for (col of columns(); track col) {
+            @for (col of plateConfig()?.columns; track col) {
             <div class="header-cell">{{ col }}</div>
             }
         </div>
 
         <div class="row-headers">
-            @for (row of rows; track row) {
+            @for (row of plateConfig()?.rows; track row) {
             <div class="header-cell">{{ row }}</div>
             }
         </div>
 
-        <div class="plate-layout" [style.grid-template-columns]="'repeat(' + columns().length + ', 1fr)'">
-            @for (well of wells(); track well.WellIndex) {
+        <div class="plate-layout" [style.grid-template-columns]="'repeat(' + plateConfig()?.columns?.length + ', 1fr)'">
+            @for (well of plateConfig()?.wells; track well.WellIndex) {
             <div class="well" [class.normal]="well.isNormal"
                 [attr.aria-label]="well.WellName + (well.isNormal ? ' Normal' : ' Low')">
                 {{ well.isNormal ? 'n' : 'L' }}
