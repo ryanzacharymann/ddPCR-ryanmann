@@ -1,0 +1,16 @@
+@if(summary()) {
+<div class="summary-container">
+    <div class="summary-item">
+        <span>Total Wells:</span>
+        <strong>{{ summary().totalWells }}</strong>
+    </div>
+    <div class="summary-item">
+        <span>Low Droplets:</span>
+        <strong>{{ summary().totalLowDroplets }}</strong>
+    </div>
+    <div class="summary-item legend">
+        <span>Legend:</span>
+        <strong>n = normal, L = low</strong>
+    </div>
+</div>
+}

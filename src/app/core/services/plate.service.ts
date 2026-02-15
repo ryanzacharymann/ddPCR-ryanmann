@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, combineLatest, from, map, Observable, of, tap } from 'rxjs';
-import { PlateConfig, PlateDropletResponse, THRESHOLD_STORAGE_KEY, Well, WELLS_STORAGE_KEY } from '@ddpcr-core/models';
+import { PlateDropletResponse, PlateSummary, THRESHOLD_STORAGE_KEY, Well, WELLS_STORAGE_KEY } from '@ddpcr-core/models';
 
 @Injectable({
     providedIn: 'root'
@@ -11,19 +11,26 @@ export class PlateService {
     private readonly threshold$ = new BehaviorSubject<number>(this.loadFromStorage(THRESHOLD_STORAGE_KEY, 100));
 
     // BehaiorSubject to store processed data
-    private readonly processed$ = combineLatest([
+    private readonly processed$: Observable<Well[]> = combineLatest([
         this.rawData$,
         this.threshold$
     ]).pipe(
         map(([wells, threshold]) => this.transformData(wells, threshold))
     );
 
+    // BehaviorSubject to store summary
+    private readonly summary$: Observable<PlateSummary> = this.processed$.pipe(
+        map(wells => ({
+            totalWells: wells.length,
+            totalLowDroplets: wells.reduce((acc, well) => acc + (well.isNormal ? 0 : 1), 0)
+        }))
+    )
+
     // Well Methods
     public uploadPlateFile(file: File): void {
         from(file.text()).pipe(
             // 1. Parse the JSON string
             map(text => JSON.parse(text) as PlateDropletResponse),
-
             // 2. Extract and validate the specific data structure
             map(data => {
                 const wells = data?.PlateDropletInfo?.DropletInfo?.Wells;
@@ -45,18 +52,8 @@ export class PlateService {
         ).subscribe(); // Internal subscription handles the "fire and forget" logic
     }
 
-    public storeWells(data: Well[]): void {
-        const wrapper: PlateDropletResponse = {
-            PlateDropletInfo: {
-                Version: 1,
-                DropletInfo: {
-                    Version: 1,
-                    Wells: data
-                }
-            }
-        };
-        localStorage.setItem(WELLS_STORAGE_KEY, JSON.stringify(wrapper));
-        this.rawData$.next(data);
+    public getPlateSummary(): Observable<PlateSummary> {
+        return this.summary$;
     }
 
     public getWells(): Observable<Well[]> {

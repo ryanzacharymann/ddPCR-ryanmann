@@ -4,19 +4,12 @@ export interface PlateDropletResponse {
 
 export interface PlateDropletInfo {
     Version: number;
-    DropletInfo: DropletContainer;
+    DropletInfo: DropletInfo;
 }
 
-export interface DropletContainer {
+export interface DropletInfo {
     Version: number;
-    type?: 48 | 96;
     Wells: Well[];
-}
-
-export interface PlateConfig {
-    rows: number;
-    cols: number;
-    type: 48 | 96;
 }
 
 export interface Well {
@@ -26,5 +19,14 @@ export interface Well {
     isNormal?: boolean;
 }
 
+export interface PlateSummary {
+    totalWells: number;
+    totalLowDroplets: number;
+}
+
+export const PLATE_ROW_LABELS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'] as const;
+
 export const WELLS_STORAGE_KEY = 'ddpcr_wells_data';
 export const THRESHOLD_STORAGE_KEY = 'ddpcr_threshold_value';
+export const DEFAULT_THRESHOLD = 100;
+

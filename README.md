@@ -40,3 +40,5 @@ src/app/
 └── shared/
     └── components/
         └── file-upload/         (Generic reusable file input)
+
+In a high-frequency data environment (e.g., 60fps streaming), I would avoid array transformations and pipe raw buffers directly to the renderer. However, for this UI exercise, I chose to [re-map the indices / use CSS placement] to ensure the Plate Grid strictly follows the biological A1-H12 standard while maintaining 1D array performance.

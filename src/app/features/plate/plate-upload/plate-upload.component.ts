@@ -6,18 +6,8 @@ import { PlateService } from '@ddpcr-core/services';
     selector: 'plate-upload',
     standalone: true,
     imports: [CommonModule],
-    template: `
-    <div class="upload-container">
-      <label for="file-upload" class="custom-label">Upload Plate JSON</label>
-      <input 
-        #fileInput
-        id="file-upload"
-        type="file" 
-        accept=".json" 
-        (change)="onFileSelected($event, fileInput)" 
-      />
-    </div>
-  `,
+    templateUrl: './plate-upload.component.html',
+    styleUrls: ['./plate-upload.component.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class PlateUploadComponent {

@@ -1,17 +1,32 @@
 <div class="grid-container">
     @if (wells().length > 0) {
-    <div class="plate-layout">
-        @for (well of wells(); track well.WellIndex) {
-        <div class="well" [class.normal]="well.isNormal">
-            {{ well.isNormal ? 'n' : 'L' }}
+    <div class="master-plate-wrapper">
+        <div class="spacer"></div>
+
+        <div class="column-headers">
+            @for (col of columns(); track col) {
+            <div class="header-cell">{{ col }}</div>
+            }
         </div>
-        } @empty {
-        <p>No data loaded.</p>
-        }
+
+        <div class="row-headers">
+            @for (row of rows; track row) {
+            <div class="header-cell">{{ row }}</div>
+            }
+        </div>
+
+        <div class="plate-layout" [style.grid-template-columns]="'repeat(' + columns().length + ', 1fr)'">
+            @for (well of wells(); track well.WellIndex) {
+            <div class="well" [class.normal]="well.isNormal"
+                [attr.aria-label]="well.WellName + (well.isNormal ? ' Normal' : ' Low')">
+                {{ well.isNormal ? 'n' : 'L' }}
+            </div>
+            }
+        </div>
     </div>
     } @else {
     <div class="empty-state">
-        <p>No wells found. Please upload a plate or check local storage.</p>
+        <p>No wells found. Please upload a plate.</p>
     </div>
     }
 </div>
